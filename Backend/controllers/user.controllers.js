@@ -8,17 +8,21 @@ module.exports.register = async (req, res, next) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { firstName, lastName, email, password } = req.body;
-  const hashPassword = userModel.hashPassword(password);
+  const { fullName, email, password } = req.body;
+  const hashPassword = await userModel.hashPassword(password);
+  console.log(fullName, email, hashPassword);
+  try {
+    const user = await userService.createUser({
+      firstName: fullName.firstName,
+      lastName: fullName.lastName,
+      email,
+      password: hashPassword,
+    });
+    console.log("user", user);
+    const token = await user.generateAuthToken();
 
-  const user = await userService.createUser({
-    firstName,
-    lastName,
-    email,
-    password: hashPassword,
-  });
-
-  const token = user.generateAuthToken();
-
-  res.status(201).json({ token, user });
+    res.status(201).json({ token, user });
+  } catch (err) {
+    next(err);
+  }
 };

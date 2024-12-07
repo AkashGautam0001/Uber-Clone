@@ -7,9 +7,12 @@ router.post(
   "/register",
   [
     body("email").isEmail().withMessage("Please enter a valid email address"),
-    body("fullname.firstName")
+    body("fullName.firstName")
       .isLength({ min: 3 })
-      .withMessage("first name must be at least 3 characters long"),
+      .withMessage("first name must be at least 3 characters"),
+    body("fullName.lastName")
+      .isLength({ min: 3 })
+      .withMessage("last name must be at least 3 characters"),
     body("password")
       .isLength({ min: 8 })
       .withMessage("Password must be at least 8 characters long"),
