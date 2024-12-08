@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const blacklistTokenModel = require("../models/blacklistToken.model");
 
 /**
  * Middleware to check if the user is authenticated
@@ -13,9 +14,18 @@ const jwt = require("jsonwebtoken");
  * @returns {Promise<void>}
  */
 module.exports.authUser = async (req, res, next) => {
-  const token = req.cookies.token || req.headers.authorization.split(" ")[1];
+  console.log(req.cookies.token);
+  const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+  console.log("token", token);
   if (!token) {
     return res.status(401).json({ message: "Unauthorized : No token" });
+  }
+
+  const isBlacklisted = await blacklistTokenModel.findOne({ token });
+  if (isBlacklisted) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized : Token is blacklisted" });
   }
 
   try {

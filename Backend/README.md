@@ -154,3 +154,46 @@ This is the backend API for the Uber Clone application. It provides endpoints fo
     ]
   }
   ```
+
+#### View Profile
+
+- **URL:** `/users/profile`
+- **Method:** `GET`
+- **Request Header:**
+
+  - **Authorization:** `Bearer <token>`
+
+- **Response:**
+
+  - **Status Code:** `200 OK`
+  - **Body:**
+
+  ```json
+  {
+    "_id": "user-id",
+    "fullName": {
+      "firstName": "Akash",
+      "lastName": "Gautam"
+    },
+    "email": "akashgautam@uber.com"
+  }
+  ```
+
+#### Logout User
+
+- **URL:** `/users/logout`
+- **Method:** `POST`
+- **Request Header:**
+
+  - **Authorization:** `Bearer <token>`
+
+- **Response:**
+
+  - **Status Code:** `200 OK`
+  - **Body:**
+
+  ```json
+  {
+    "message": "Successfully logged out"
+  }
+  ```

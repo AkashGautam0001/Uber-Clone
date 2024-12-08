@@ -1,6 +1,7 @@
 const userModel = require("../models/user.model");
 const userService = require("../services/user.services");
 const { validationResult } = require("express-validator");
+const blackListTokenModel = require("../models/blacklistToken.model");
 
 /**
  * @function register
@@ -73,9 +74,11 @@ module.exports.loginUser = async (req, res, next) => {
 
     const token = await user.generateAuthToken();
 
+    console.log(token);
+
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
+      // httpOnly: true,
+      // secure: true,
       maxAge: 24 * 60 * 60 * 1000,
     });
 
@@ -91,12 +94,30 @@ module.exports.loginUser = async (req, res, next) => {
  * @param {Object} req - The Express request object
  * @param {Object} res - The Express response object
  * @param {Function} next - The next middleware in the Express chain
- *
+
  * @returns {Promise<void>}
  */
 module.exports.getUserProfile = async (req, res, next) => {
   try {
     res.status(200).json(req.user);
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports.logoutUser = async (req, res, next) => {
+  try {
+    res.clearCookie("token");
+
+    const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized : No token" });
+    }
+
+    await blackListTokenModel.create({ token });
+
+    res.status(200).json({ message: "Logout successful" });
   } catch (error) {
     next(error);
   }
