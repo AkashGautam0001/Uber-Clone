@@ -73,7 +73,30 @@ module.exports.loginUser = async (req, res, next) => {
 
     const token = await user.generateAuthToken();
 
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     res.status(200).json({ token, user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @function getUserProfile
+ * @description Returns the profile of the logged in user
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The next middleware in the Express chain
+ *
+ * @returns {Promise<void>}
+ */
+module.exports.getUserProfile = async (req, res, next) => {
+  try {
+    res.status(200).json(req.user);
   } catch (error) {
     next(error);
   }
