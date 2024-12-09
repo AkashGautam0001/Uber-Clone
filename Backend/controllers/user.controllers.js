@@ -11,13 +11,21 @@ const blackListTokenModel = require("../models/blacklistToken.model");
  * @param {Function} next - The next middleware in the Express chain
  * @returns {Promise<void>}
  */
-module.exports.register = async (req, res, next) => {
+module.exports.registerUser = async (req, res, next) => {
   const errors = validationResult(req);
+  console.log(req.body);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
   }
 
   const { fullName, email, password } = req.body;
+
+  const isUserAlreadyExits = await userModel.findOne({ email });
+
+  if (isUserAlreadyExits) {
+    return res.status(400).json({ message: "User already exists" });
+  }
+
   const hashPassword = await userModel.hashPassword(password);
   console.log(fullName, email, hashPassword);
   try {
@@ -105,6 +113,15 @@ module.exports.getUserProfile = async (req, res, next) => {
   }
 };
 
+/**
+ * @function logoutUser
+ * @description Logs out the user by clearing the authentication token cookie and blacklisting the token
+ * @param {Object} req - The Express request object
+ * @param {Object} res - The Express response object
+ * @param {Function} next - The next middleware in the Express chain
+ * @returns {Promise<void>}
+ * @throws {Error} - If an error occurs during the logout process
+ */
 module.exports.logoutUser = async (req, res, next) => {
   try {
     res.clearCookie("token");
